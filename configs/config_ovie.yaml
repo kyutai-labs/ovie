@@ -1,0 +1,92 @@
+experiment_name: "ovie"
+data:
+  data_path: 
+  - /PATH/TO/PREPROCESSED/TRAIN/IMAGENET
+  - /PATH/TO/PREPROCESSED/TRAIN/PLACES
+  - /PATH/TO/PREPROCESSED/TRAIN/OSV5M
+  - /PATH/TO/PREPROCESSED/TRAIN/OPENIMAGES
+  image_size: 256
+  num_workers: 16
+  val_data_path: /PATH/TO/PREPROCESSED/VAL/DATASET
+depth_estimator:
+  compile: false
+  model_name: Ruicheng/moge-2-vitl-normal
+gan:
+  disc:
+    arch:
+      dino_ckpt_path: ./assets/dino_vit_small_patch8_224.pth
+      ks: 9
+      norm_type: bn
+      recipe: S_8
+      using_spec_norm: true
+    augment:
+      cutout: 0.0
+      prob: 1.0
+    optimizer:
+      betas:
+      - 0.9
+      - 0.95
+      lr: 0.0002
+      weight_decay: 0.0
+    scheduler:
+      enabled: true
+      warmup_ratio: 0.05
+      min_lr: 0.00002
+    compile: false
+
+  loss:
+    disc_loss: hinge
+    disc_start_ratio: 0.4
+    disc_upd_start_ratio: 0.375
+    disc_weight: 0.75
+    gen_loss: vanilla
+    max_d_weight: 10000.0
+model:
+  compile: true
+  model_type: OVIE_B
+  use_checkpoint: false
+  use_qknorm: false
+  use_rmsnorm: true
+  use_rope: false
+  use_swiglu: true
+  wo_shift: false
+train:
+  amp:
+    enabled: false
+  recon_loss: 'l2'
+  ckpt_every: 50000
+  ema_decay: 0.999
+  num_training_steps: 1000001
+  global_batch_size: 256
+  log_every: 10
+  val_every: 5000
+  lr: 0.0002
+  weight_decay: 0.05
+  max_grad_norm: 1.0
+  output_dir: ./outputs
+  seed: 42
+  lpips_weight: 1.0
+  dino_model: facebook/dinov3-vitb16-pretrain-lvd1689m
+  dino_perceptual_loss_weight: 0.0
+  imagenet_mean: [0.485, 0.456, 0.406]
+  imagenet_std: [0.229, 0.224, 0.225]
+  scheduler:
+    enabled: true
+    warmup_ratio: 0.05
+    min_lr: 0.00002
+view_sampling_params:
+  anchor_noise_scale: 0.02
+  dist_range:
+  - 0.75
+  - 1.5
+  max_angle_deg: 25
+  rotation_safety_factor: 1.0
+  splat_size: 0.9
+  translation_safety_factor: 1.0
+view_sampling_weights:
+  frontal_hemisphere: 0.25
+  identity: 0.15
+  normals_derived: 0.05
+  pure_rotation: 0.10
+  pure_translation: 0.10
+  rotation_and_translation: 0.35
