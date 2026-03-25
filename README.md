@@ -8,6 +8,8 @@ This repository contains the official implementation and models for **OVIE** (*O
 
 OVIE is a framework for monocular novel view synthesis that does not require multi-view image pairs for supervision. Instead, it is trained entirely on unpaired internet images. 
 
+![OVIE teaser](assets/teaser.jpeg)
+
 ---
 
 ## 🗂️ Table of Contents
