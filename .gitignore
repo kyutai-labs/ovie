@@ -1,0 +1,11 @@
+**/__pycache__/
+**/*.pyc
+notebooks/
+outputs/
+model_weights/
+Polyphemus.egg-info/
+evaluation/
+.venv
+assets/dino_vit_small_patch8_224.pth
+assets/ovie_checkpoint.pt
+``
