@@ -1,11 +1,33 @@
-**/__pycache__/
-**/*.pyc
-notebooks/
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Model weights and large binaries
+# (not committed — download from the Releases page or the HF Hub)
+assets/*.pt
+assets/*.pth
+assets/*.zip
+assets/home/
+/*.pt
+/*.pth
+
+# Training and evaluation outputs
 outputs/
-model_weights/
-Polyphemus.egg-info/
 evaluation/
-.venv
-assets/dino_vit_small_patch8_224.pth
-assets/ovie_checkpoint.pt
-``
+flythrough_output*/
