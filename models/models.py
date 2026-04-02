@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.checkpoint import checkpoint
 
+from huggingface_hub import PyTorchModelHubMixin
 from timm.models.vision_transformer import PatchEmbed, Mlp
 from models.swiglu_ffn import SwiGLUFFN
 from models.pos_embed import VisionRotaryEmbeddingFast
@@ -147,7 +148,10 @@ class ConditionalViTBlock(nn.Module):
 
         # Initialize MLP layer
         mlp_hidden_dim = int(hidden_size * mlp_ratio)
-        approx_gelu = lambda: nn.GELU(approximate="tanh")
+
+        def approx_gelu():
+            return nn.GELU(approximate="tanh")
+
         if use_swiglu:
             # here we did not use SwiGLU from xformers because it is not compatible with torch.compile for now.
             self.mlp = SwiGLUFFN(hidden_size, int(2 / 3 * mlp_hidden_dim))
@@ -492,7 +496,7 @@ class Upsample(nn.Module):
         return x
 
 
-class ConditionalUViT(nn.Module):
+class OVIEModel(nn.Module, PyTorchModelHubMixin):
     """
     U-Net without skip-connections using a ViT bottleneck.
     """
@@ -522,6 +526,7 @@ class ConditionalUViT(nn.Module):
     ):
         super().__init__()
 
+        self.image_size = image_size
         self.num_down = len(ch_mult)
         vit_input_size = image_size // (2**self.num_down)
         assert vit_input_size > 0
@@ -597,7 +602,7 @@ class ConditionalUViT(nn.Module):
 
 
 def OVIE_B(**kwargs):
-    return ConditionalUViT(
+    return OVIEModel(
         in_channels=3,
         out_channels=3,
         ch=128,
