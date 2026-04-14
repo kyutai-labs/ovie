@@ -4,8 +4,6 @@
 [![Paper](https://img.shields.io/badge/arXiv-Paper-red?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2603.23488)
 [![Model](https://img.shields.io/badge/🤗%20HuggingFace-kyutai%2Fovie-yellow)](https://huggingface.co/kyutai/ovie)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
-[![CI](https://github.com/AdrienRR/ovie/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/AdrienRR/ovie/actions/workflows/pre-commit.yml)
 
 This repository contains the official implementation and models for **OVIE** (*One View Is Enough! Monocular Training for In-the-Wild Novel View Generation*).
 
