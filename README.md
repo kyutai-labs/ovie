@@ -1,6 +1,7 @@
 # OVIE: One View Is Enough!
 ### Monocular Training for In-the-Wild Novel View Generation
 
+[![Project Page](https://img.shields.io/badge/Project_Page-green?logo=googlechrome&logoColor=white)](https://kyutai.org/blog/2026-04-14-ovie)
 [![Paper](https://img.shields.io/badge/arXiv-Paper-red?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2603.23488)
 [![Model](https://img.shields.io/badge/🤗%20HuggingFace-kyutai%2Fovie-yellow)](https://huggingface.co/kyutai/ovie)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
