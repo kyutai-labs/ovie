@@ -71,6 +71,9 @@ exclude = ["moge2/"]
 [tool.setuptools]
 py-modules = []
 
+[tool.uv]
+exclude-newer = "7 days"
+
 [tool.uv.sources]
 transformers = { git = "https://github.com/huggingface/transformers.git" }
 
