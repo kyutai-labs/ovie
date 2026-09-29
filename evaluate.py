@@ -15,7 +15,7 @@ import lpips
 from torchmetrics.functional import structural_similarity_index_measure as ssim
 
 from data import MultiViewSequenceDataset
-from models.models import OVIE_models
+from models.models import OVIE_models, OVIEModel
 from utils.pose_enc import extri_intri_to_pose_encoding
 
 
@@ -78,6 +78,8 @@ def tensor_to_pil(tensor):
 
 
 def main(args):
+    if (args.checkpoint_path is None) == (args.from_pretrained is None):
+        raise ValueError("Pass exactly one of --checkpoint_path or --from_pretrained.")
     set_seed(args.seed)
     device = torch.device(args.device)
 
@@ -102,28 +104,37 @@ def main(args):
     with open(args.config_path, "r") as f:
         config = yaml.safe_load(f)
 
-    experiment_name = os.path.basename(os.path.dirname(args.checkpoint_path))
-    checkpoint_basename = os.path.basename(args.checkpoint_path).split(".")[0]
+    model_cfg = config["model"]
+    model_type = model_cfg["model_type"]
+
+    if args.from_pretrained:
+        experiment_name = args.from_pretrained.replace("/", "_")
+        checkpoint_basename = "hub"
+    else:
+        experiment_name = os.path.basename(os.path.dirname(args.checkpoint_path))
+        checkpoint_basename = os.path.basename(args.checkpoint_path).split(".")[0]
     subfolder_name = f"{experiment_name}_{checkpoint_basename}_s={args.stride}_nframes={args.num_target_frames}_removefirstframe=True"
     args.output_folder = os.path.join(args.output_folder, subfolder_name)
     os.makedirs(args.output_folder, exist_ok=True)
 
-    ckpt = torch.load(args.checkpoint_path, map_location="cpu")
-    model_cfg = config["model"]
-    model_type = model_cfg["model_type"]
+    if args.from_pretrained:
+        print(f"Loading NVS model from the Hub: {args.from_pretrained}")
+        model = OVIEModel.from_pretrained(args.from_pretrained).to(device)
+        model.eval()
+    else:
+        ckpt = torch.load(args.checkpoint_path, map_location="cpu")
+        model = OVIE_models[model_type](
+            image_size=args.image_size,
+            vit_use_qknorm=model_cfg.get("use_qknorm", False),
+            vit_use_swiglu=model_cfg.get("use_swiglu", True),
+            vit_use_rope=model_cfg.get("use_rope", False),
+            vit_use_rmsnorm=model_cfg.get("use_rmsnorm", True),
+            vit_wo_shift=model_cfg.get("wo_shift", False),
+            vit_use_checkpoint=model_cfg.get("use_checkpoint", False),
+        ).to(device)
 
-    model = OVIE_models[model_type](
-        image_size=args.image_size,
-        vit_use_qknorm=model_cfg.get("use_qknorm", False),
-        vit_use_swiglu=model_cfg.get("use_swiglu", True),
-        vit_use_rope=model_cfg.get("use_rope", False),
-        vit_use_rmsnorm=model_cfg.get("use_rmsnorm", True),
-        vit_wo_shift=model_cfg.get("wo_shift", False),
-        vit_use_checkpoint=model_cfg.get("use_checkpoint", False),
-    ).to(device)
-
-    model.load_state_dict(ckpt["ema"])
-    model.eval()
+        model.load_state_dict(ckpt["ema"])
+        model.eval()
 
     # Metrics
     lpips_fn = lpips.LPIPS(net="vgg").to(device)
@@ -470,7 +481,21 @@ if __name__ == "__main__":
     # Paths
     parser.add_argument("--dataset_path", type=str, required=True)
     parser.add_argument("--config_path", type=str, required=True)
-    parser.add_argument("--checkpoint_path", type=str, required=True)
+    parser.add_argument(
+        "--checkpoint_path",
+        type=str,
+        default=None,
+        help="Local checkpoint (.pt with an 'ema' key). Mutually exclusive "
+        "with --from_pretrained.",
+    )
+    parser.add_argument(
+        "--from_pretrained",
+        type=str,
+        default=None,
+        help="Hugging Face Hub model id, e.g. 'kyutai/ovie-ft-re10k'. Loads the "
+        "weights directly from the Hub instead of a local checkpoint. "
+        "Mutually exclusive with --checkpoint_path.",
+    )
     parser.add_argument("--output_folder", type=str, default="evaluation")
 
     # Dataset arguments

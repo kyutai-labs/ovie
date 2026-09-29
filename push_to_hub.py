@@ -4,6 +4,8 @@ Upload OVIE weights to the Hugging Face Hub.
 Usage:
     uv run push_to_hub.py --ckpt assets/ovie.pt --repo kyutai/ovie
     uv run push_to_hub.py --ckpt assets/ovie.pt --repo kyutai/ovie --tag v1.0
+    uv run push_to_hub.py --ckpt assets/ovie_ft_re10k.pt --repo kyutai/ovie-ft-re10k
+    uv run push_to_hub.py --ckpt assets/ovie_512.pt --repo kyutai/ovie-512 --image-size 512
 
 The script extracts the EMA weights from the checkpoint, loads them into the
 model, and pushes the model + config to the specified Hub repository.
@@ -40,6 +42,13 @@ def main():
         action="store_true",
         help="Create the Hub repository as private",
     )
+    parser.add_argument(
+        "--image-size",
+        type=int,
+        default=256,
+        help="Training resolution of the checkpoint (256 for the base and "
+        "fine-tuned models, 512 for the 512x512 variant).",
+    )
     args = parser.parse_args()
 
     print(f"Loading checkpoint from {args.ckpt} ...")
@@ -49,9 +58,9 @@ def main():
             f"Expected an 'ema' key in the checkpoint, got: {list(ckpt.keys())}"
         )
 
-    print("Instantiating OVIE-B model ...")
+    print(f"Instantiating OVIE-B model at image_size={args.image_size} ...")
     model = OVIEModel(
-        image_size=256,
+        image_size=args.image_size,
         in_channels=3,
         out_channels=3,
         ch=128,

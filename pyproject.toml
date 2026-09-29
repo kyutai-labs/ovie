@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "OVIE"
 version = "1.0.0"
-description = "Official implementation and models for OVIE (One View Is Enough! Monocular Training for In-the-Wild Novel View Generation)"
+description = "Official implementation and models for OVIE (One View Is Enough: In-the-Wild Monocular Pretraining for Novel View Generation)"
 requires-python = "==3.10.9"
 dependencies = [
     "torch",
